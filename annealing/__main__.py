@@ -1,6 +1,7 @@
 import random
 import datetime
 import time
+from copy import deepcopy
 
 
 class SimulateAnnealingTool:
@@ -17,24 +18,21 @@ class SimulateAnnealingTool:
         self.cooling = cooling
 
         self.fitness_table = get_fitness_table()
-        self.__get_initial_rooms()
+        self.create_state()
         temp = self.__get_fitness_all(self.rooms)
         self.fitness_avg = temp[0]
         self.fitness_high = temp[1]
         self.fitness_low = temp[2]
 
-    def __get_initial_rooms(self):
-        # creates random initial rooms state
+    def create_state(self):
         temp_rooms = []  # empty array for room assignments
         for i in range(200):
             temp_rooms.append(i)
         random.shuffle(temp_rooms)  # randomize order
         print(temp_rooms)
-        divided_rooms = []
         for a, b, c, d in zip(*[iter(temp_rooms)] * 4):
             temp = [a, b, c, d, 0]
-            divided_rooms.append(temp)  # subdivide, saving a spot for room score
-        self.rooms = divided_rooms
+            self.rooms.append(temp)  # subdivide, saving a spot for room score
 
     def __get_fitness_all(self, rooms):
         # returns avg, high, and low fitness for provided rooms state
@@ -87,6 +85,9 @@ class SimulateAnnealingTool:
                 room[0], room[1], room[2], room[3], room[4])
         return rooms_str
 
+    def __rooms_deep_copy(self):
+        return self.rooms[:][:]
+
     def __str__(self):
         # print function to provide nice output for debugging
         self.__sort_rooms()
@@ -100,22 +101,24 @@ class SimulateAnnealingTool:
         output_file.writelines([self.__get_stats_template(), self.__get_rooms_template()])
         output_file.close()
 
-    def __swap_double(self):
+    def __do_double_swap(self):
         # swap first 2 students in one random room with last 2 students in another room
         room_nums = []
         for i in range(50):
             room_nums.append(i)
         swap1 = room_nums.pop(random.randrange(50))
         swap2 = room_nums.pop(random.randrange(49))
-        new_rooms = self.rooms
-        temp_stu = [new_rooms[swap2][0], new_rooms[swap2][1]]
-        new_rooms[swap2][0] = new_rooms[swap1][2]
-        new_rooms[swap2][1] = new_rooms[swap1][3]
-        new_rooms[swap1][2] = temp_stu[0]
-        new_rooms[swap1][3] = temp_stu[1]
-        return new_rooms
+        self.next_rooms = self.__rooms_deep_copy()
+        # print("double: swapping stu {:>3} & {:>3} with {:>3} & {:>3}".format(
+        #     self.next_rooms[swap2][0], self.next_rooms[swap2][1],
+        #     self.next_rooms[swap1][2], self.next_rooms[swap1][3]))
+        temp_stu = [self.next_rooms[swap2][0], self.next_rooms[swap2][1]]
+        self.next_rooms[swap2][0] = self.next_rooms[swap1][2]
+        self.next_rooms[swap2][1] = self.next_rooms[swap1][3]
+        self.next_rooms[swap1][2] = temp_stu[0]
+        self.next_rooms[swap1][3] = temp_stu[1]
 
-    def __swap_single(self):
+    def __do_single_swap(self):
         # swap one random student in a random room with one random student in another room
         stu_nums = []
         for i in range(200):
@@ -128,55 +131,63 @@ class SimulateAnnealingTool:
         swap2 = stu_nums.pop(rand_index)
         room2 = swap2 // 4
         stu2 = swap2 % 4
-        new_rooms = self.rooms
-        temp_stu = new_rooms[room2][stu2]
-        new_rooms[room2][stu2] = new_rooms[room1][stu1]
-        new_rooms[room1][stu1] = temp_stu
-        return new_rooms
+        self.next_rooms = self.__rooms_deep_copy()
+        # print("single: stu {:>3} with stu {:>3}".format(self.next_rooms[room1][stu1], self.next_rooms[room2][stu2]))
+        temp_stu = self.next_rooms[room2][stu2]
+        self.next_rooms[room2][stu2] = self.next_rooms[room1][stu1]
+        self.next_rooms[room1][stu1] = temp_stu
+        return self.next_rooms
 
     def __update_temperature(self):
         # updates temp according to cooling schedule
         if self.attempted_swaps % 20000 == 0:
-            self.current_temp = self.current_temp * self.cooling
-        elif self.actual_swaps % 2000 == 0:
-            self.current_temp = self.current_temp * self.cooling
+            self.current_temp = self.current_temp * cooling
+        elif self.actual_swaps > 0 and self.actual_swaps % 2000 == 0:
+            self.current_temp = self.current_temp * cooling
 
     def generate_swap(self):
-        # gets a next state, compares to current state, and decides whether to move forward or not
+        # gets a next state, compares to current state, and decides which state to go with
+        # uses simulated annealing to explore the area without getting stuck on a local minimum,
+        # decreasing frequency of worse state changes over time
         self.attempted_swaps += 1
         self.__update_temperature()
-        swap_type = {
-            0: self.__swap_single(),
-            1: self.__swap_double()
-        }
-        new_rooms = swap_type[random.randrange(2)]
-        new_fitness = self.__get_fitness_all(new_rooms)
+
+        choice = random.randrange(2)
+        if choice == 0:
+            self.__do_single_swap()
+        else:
+            self.__do_double_swap()
+
+        new_fitness = self.__get_fitness_all(self.next_rooms)
         if new_fitness[0] < self.fitness_avg:
             # move to better fitness state
             debug = "~ better fitness accepted on attempt {:>9,} ~"
-            self.rooms = new_rooms
+            self.rooms = deepcopy(self.next_rooms)
             self.fitness_avg = new_fitness[0]
             self.fitness_high = new_fitness[1]
             self.fitness_low = new_fitness[2]
             self.actual_swaps += 1
             self.seq_non_swaps = 0
+
         elif E**((self.fitness_avg - new_fitness[0]) / self.current_temp) > random.random():
             # probability to accept worse state = E^(-delta/T)
             debug = "~ worse fitness accepted on attempt  {:>9,} ~"
-            self.rooms = new_rooms
+            self.rooms = deepcopy(self.next_rooms)
             self.fitness_avg = new_fitness[0]
             self.fitness_high = new_fitness[1]
             self.fitness_low = new_fitness[2]
             self.actual_swaps += 1
             self.seq_non_swaps = 0
+
         else:
             # no changes accepted
-            debug = "~ no new fitness accepted on attempt {:>9,}  ~"
+            debug = "~ no new fitness accepted on attempt {:>9,} ~"
             self.seq_non_swaps += 1
+
         print(debug.format(self.attempted_swaps) + " " + str(self.fitness_avg))
 
 
-initial_temp = 800
+initial_temp = 1000
 cooling = 0.95
 E = 2.718281828459
 
@@ -203,10 +214,9 @@ def get_fitness_table():  # open file of match ratings and add to array
 
 def main():
 
-    solver = SimulateAnnealingTool()
-
-    print("Fitness: {}".format(solver.fitness_avg))
-    print(solver)
+    state_alpha = SimulateAnnealingTool()
+    state_bravo = SimulateAnnealingTool()
+    print(state_alpha)
     # i = 0
     # while i < 5:
     #     solver.generate_swap()
@@ -214,18 +224,18 @@ def main():
     #     i += 1
 
     start = time.time()
-    while solver.seq_non_swaps < 20000:
-        solver.generate_swap()
+    while state_alpha.seq_non_swaps < 20000:
+        state_alpha.generate_swap()
         # if solver.attempted_swaps % 2000 == 0:
         #     print(solver)
     stop = time.time()
     total_time = stop-start
-    avg_time = total_time / solver.attempted_swaps
+    avg_time = total_time / state_alpha.attempted_swaps
     print("~~~~~~~ The Final Results ~~~~~~~")
     print("20,000 iterations without changes")
     print("Total execution time: {}, average: {}s".format(total_time, avg_time))
-    print(solver)
-    solver.save_to_file()
+    print(state_alpha)
+    state_alpha.save_to_file()
 
 
 if __name__ == '__main__':
