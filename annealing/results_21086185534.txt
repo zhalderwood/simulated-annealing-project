@@ -1,0 +1,59 @@
+Initial temperature: 1000   Ending temperature: 0.088
+Cooling schedule: T = 0.95T after 2000 swaps or 20000 attempts
+Attempted swaps: 595,557   Actual swaps: 222,529
+
+            Average room fitness: 69.06
+            Worst room fitness  : 80
+            Best room fitness   : 80
+            
+Each line below is a single room assignment
+Students:   0,  30,  46, 156;   Room Fitness:  97
+Students:   1,  31,  65, 184;   Room Fitness:  52
+Students:   2,  59, 130, 152;   Room Fitness:  58
+Students:   3,  88, 122, 150;   Room Fitness:  86
+Students:   4,  29,  60,  99;   Room Fitness:  66
+Students:   5,  26,  74, 179;   Room Fitness:  38
+Students:   6,  93, 162, 197;   Room Fitness:  83
+Students:   7,  12,  94, 181;   Room Fitness:  72
+Students:   8,  38,  67,  87;   Room Fitness:  91
+Students:   9,  40,  91, 106;   Room Fitness:  58
+Students:  10, 127, 154, 190;   Room Fitness: 126
+Students:  11,  45, 101, 104;   Room Fitness:  60
+Students:  13,  19, 129, 198;   Room Fitness:  57
+Students:  14,  48, 161, 195;   Room Fitness: 103
+Students:  15,  80, 134, 165;   Room Fitness:  91
+Students:  16, 138, 139, 149;   Room Fitness:  81
+Students:  17,  21,  86, 146;   Room Fitness: 128
+Students:  18,  34, 151, 177;   Room Fitness: 102
+Students:  20,  76, 115, 140;   Room Fitness:  66
+Students:  22,  82, 108, 182;   Room Fitness:  63
+Students:  23, 183, 185, 189;   Room Fitness:  37
+Students:  24,  95, 136, 142;   Room Fitness:  40
+Students:  25,  92, 105, 191;   Room Fitness:  47
+Students:  27,  84, 163, 173;   Room Fitness:  71
+Students:  28, 125, 169, 172;   Room Fitness:  55
+Students:  32,  55, 110, 144;   Room Fitness:  66
+Students:  33,  44,  69, 157;   Room Fitness:  75
+Students:  35,  62,  73, 102;   Room Fitness:  91
+Students:  36, 119, 123, 199;   Room Fitness:  31
+Students:  37,  49, 155, 170;   Room Fitness:  66
+Students:  39,  81, 145, 153;   Room Fitness:  72
+Students:  41, 118, 124, 158;   Room Fitness:  42
+Students:  42,  47, 128, 196;   Room Fitness:  61
+Students:  43,  52,  64,  89;   Room Fitness:  43
+Students:  50, 109, 141, 186;   Room Fitness:  52
+Students:  51,  70, 174, 176;   Room Fitness:  78
+Students:  53, 159, 175, 193;   Room Fitness:  56
+Students:  54,  58,  90, 180;   Room Fitness: 105
+Students:  56,  57, 143, 160;   Room Fitness:  79
+Students:  61, 117, 132, 167;   Room Fitness:  66
+Students:  63,  83, 113, 164;   Room Fitness:  67
+Students:  66, 112, 120, 192;   Room Fitness:  95
+Students:  68,  77, 147, 168;   Room Fitness:  79
+Students:  71,  97, 121, 126;   Room Fitness:  58
+Students:  72, 133, 178, 194;   Room Fitness:  46
+Students:  75, 103, 148, 166;   Room Fitness:  65
+Students:  78,  79, 171, 188;   Room Fitness:  38
+Students:  85, 116, 131, 187;   Room Fitness:  46
+Students:  96,  98, 100, 111;   Room Fitness:  68
+Students: 107, 114, 135, 137;   Room Fitness:  80
